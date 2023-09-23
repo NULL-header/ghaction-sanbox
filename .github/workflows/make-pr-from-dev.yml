@@ -11,6 +11,8 @@ jobs:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       PREFIX: "[bot] feature: "
     steps:
+      - name: Checkout
+        uses: actions/checkout@v3
       - name: Make name of PullRequest with checking the pushed is branch
         id: pr_name
         shell: bash
@@ -35,9 +37,6 @@ jobs:
           value=(( count == 0 ? 0 : 1 ))
           echo "value=${value}" >> "$GITHUB_OUTPUT"
           echo "name=${name}" >> "$GITHUB_OUTPUT"
-      - name: Checkout
-        if: ${{ steps.has_existed.outputs.value == 0 }}
-        uses: actions/checkout@v3
       - name: Make PullRequest
         if: ${{ steps.has_existed.outputs.value == 0 }}
         shell: bash
