@@ -31,7 +31,7 @@ jobs:
         shell: bash
         run: |
           name="${{ env.PREFIX }}${{ steps.pr_name.outputs.branch_name }}"
-          gh pr list | xargs echo
+          gh pr list --json title | jq ".[] | select(.==\"$name\")" | jq -s 'length' | xargs echo
       - name: Check that PullRequest exists
         id: has_existed
         if: ${{ steps.pr_name.outputs.is_feature == 1 }}
