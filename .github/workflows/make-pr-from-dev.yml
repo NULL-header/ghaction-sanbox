@@ -30,7 +30,7 @@ jobs:
         if: ${{ steps.pr_name.outputs.is_feature == 1 }}
         shell: bash
         run: |
-          $name=${PREFIX}{{ $steps.pr_name.outputs.branch_name }}
+          $name="${PREFIX}{{ $steps.pr_name.outputs.branch_name }}"
           $count=$(gh pr list | grep -E "^${name}\$" -c)
           $value=(( count == 0 ? 0 : 1 ))
           echo "value=${value}" >> "$GITHUB_OUTPUT"
