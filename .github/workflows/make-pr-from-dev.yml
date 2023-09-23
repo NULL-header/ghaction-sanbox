@@ -27,21 +27,16 @@ jobs:
           fi
           echo "branch_name=${branch_name}" >> "$GITHUB_OUTPUT"
           echo "is_feature=${is_feature}" >> "$GITHUB_OUTPUT"
-      - name: Test
-        shell: bash
-        run: |
-          name="${{ env.PREFIX }}${{ steps.pr_name.outputs.branch_name }}"
-          gh pr list --json title | jq ".[] | select(.==\"$name\")" | jq -s 'length' | xargs echo
       - name: Check that PullRequest exists
         id: has_existed
         if: ${{ steps.pr_name.outputs.is_feature == 1 }}
         shell: bash
         run: |
           name="${{ env.PREFIX }}${{ steps.pr_name.outputs.branch_name }}"
-          count=$(gh pr list | grep -E "^$name\$" -c)
-          value=0
-          if [[ $count = 1 ]]; then
-            value=1
+          count=$(gh pr list --json title | jq ".[] | select(.==\"$name\")" | jq -s 'length')
+          value=1
+          if [[ $count = 0 ]]; then
+            value=0
           fi
           echo "value=${value}" >> "$GITHUB_OUTPUT"
           echo "name=${name}" >> "$GITHUB_OUTPUT"
