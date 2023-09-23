@@ -33,7 +33,7 @@ jobs:
         shell: bash
         run: |
           name="${{ env.PREFIX }}${{ steps.pr_name.outputs.branch_name }}"
-          count=$(gh pr list | grep -E "^${name}\$" -c)
+          count="$(gh pr list | grep -E "^${name}\$" -c)"
           value=0
           if [[ $count = 1 ]]; then
             value=1
