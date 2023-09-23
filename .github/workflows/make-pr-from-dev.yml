@@ -1,0 +1,47 @@
+name: Make PullRequest when to push feature branch
+on:
+  push:
+    branches:
+      - "feature/*"
+
+jobs:
+  make-pr:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      PREFIX: "[bot] feature: "
+    steps:
+      - name: Make name of PullRequest with checking the pushed is branch
+        id: pr_name
+        shell: bash
+        run: |
+          branch_name=""
+          is_feature=0
+          if [[ $GITHUB_REF =~ ^refs/heads/feature/.*$ ]]; then
+            branch_name=${GITHUB_REF#refs/heads/feature/}
+          fi
+          if [[ ! ${#branch_name} = 0 ]]; then
+            is_feature=1
+          fi
+          echo "branch_name=${branch_name}" >> "$GITHUB_OUTPUT"
+          echo "is_feature=${is_feature}" >> "$GITHUB_OUTPUT"
+      - name: Check that PullRequest exists
+        id: has_existed
+        if: ${{ steps.pr_name.outputs.is_feature == 1 }}
+        shell: bash
+        run: |
+          $name=${PREFIX}{{ $steps.pr_name.outputs.branch_name }}
+          $count=$(gh pr list | grep -E "^${name}\$" -c)
+          $value=(( count == 0 ? 0 : 1 ))
+          echo "value=${value}" >> "$GITHUB_OUTPUT"
+          echo "name=${name}" >> "$GITHUB_OUTPUT"
+      - name: Checkout
+        if: ${{ steps.has_existed.outputs.value == 0 }}
+        uses: actions/checkout@v3
+      - name: Make PullRequest
+        if: ${{ steps.has_existed.outputs.value == 0 }}
+        shell: bash
+        run: |
+          gh pr create \
+            -B main -t "${{ steps.has_existed.outputs.name }}" \
+            -a ${{ github.actor }} -F ./.github/PR-TEMPLATE.md
