@@ -34,7 +34,10 @@ jobs:
         run: |
           name="${{ env.PREFIX }}${{ steps.pr_name.outputs.branch_name }}"
           count=$(gh pr list | grep -E "^${name}\$" -c)
-          value=(( count == 0 ? 0 : 1 ))
+          value=0
+          if [[ $count = 1 ]]; then
+            value=1
+          fi
           echo "value=${value}" >> "$GITHUB_OUTPUT"
           echo "name=${name}" >> "$GITHUB_OUTPUT"
       - name: Make PullRequest
